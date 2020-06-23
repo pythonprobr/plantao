@@ -1,4 +1,5 @@
 from brincadeira_com_mock.enviador_de_spam import EnviadorDeSpam
+from unittest.mock import Mock
 
 
 def test_criacao_enviador_de_spam():
@@ -13,19 +14,12 @@ def test_enviador_possui_destinatarios():
         'renzo@email.com', 'river@email.com'
         ]
 
-class CanalMock:
-    def __init__(self):
-        self.enviar_foi_chamado = False
-        self.enviar_argumentos=[]
-
-    def enviar(self, destinatario, msg):
-        self.enviar_argumentos=[destinatario, msg]
-        self.enviar_foi_chamado = True
-        return ('renzo@email.com', 'Renzo se liga que tem plantão Python Pro!')
 
 def test_envio_de_spam():
     enviador = EnviadorDeSpam(['renzo@email.com'])
-    enviador.canais_de_envio=[CanalMock()]
+    canal=aMock()
+    canal.enviar.return_vlue=('renzo@email.com', 'Renzo se liga que tem plantão Python Pro!')
+    enviador.canais_de_envio=[canal]
     assert list(
         enviador.enviar_spam('se liga que tem plantão Python Pro!'))==[
             ('renzo@email.com', 'Renzo se liga que tem plantão Python Pro!'),
@@ -33,10 +27,9 @@ def test_envio_de_spam():
 
 def test_canal_foi_executado():
     enviador = EnviadorDeSpam(['renzo@email.com'])
-    canal = CanalMock()
+    canal=Mock()
     enviador.canais_de_envio=[canal]
     list(enviador.enviar_spam('se liga que tem plantão Python Pro!'))
-    assert canal.enviar_foi_chamado
-    assert canal.enviar_argumentos == ['renzo@email.com', 'se liga que tem plantão Python Pro!']
+    canal.enviar.assert_called_once_with('renzo@email.com', 'se liga que tem plantão Python Pro!')
 
 
